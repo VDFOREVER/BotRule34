@@ -1,6 +1,6 @@
 {
     "url": "https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&tags=",
-    "webhook_url": "https://discord.com/api/webhooks/1097161950674292817/qf3TzltsFpBfKlQRshBMCIHr-WmVzp7_UBNSOsiRVMkYOUAKfFFU3yljnnTg80sUjkq9",
+    "webhook_url": "",
     "antitags":[
         "ai_generated",
         "furry",
@@ -45,6 +45,14 @@
         "orange_fur",
         "anthro",
         "farting_on_face",
+        "farting",
+        "zoophilia",
+        "canine",
+        "horse",
+        "fat_man",
+        "anilingus",
+        "koikatsu",
+        "fart",
         "farting"
     ],
     "tags": [
@@ -72,12 +80,16 @@
         "5danny1206+fox_ears+",
         "hibiki_(blue_archive)",
         "amagi_(azur_lane)",
+        "atago_(azur_lane)",
         "franka_(arknights)",
         "whislash_(arknights)",
         "angelina_(arknights)",
         "musashi_(azur_lane)",
         "animal_ear_fluff",
         "fox_ears",
-        "car_ears"
+        "car_ears",
+        "yae_miko",
+        "filian",
+        "koyanskaya_(fate)"
     ]
 }

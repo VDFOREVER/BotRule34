@@ -1,11 +1,10 @@
 use serde::{Deserialize, Serialize};
-use serde_json::{self};
-use serde_xml_rs::from_str;
 use reqwest::{self};
 use std::collections::HashSet;
 use std::fs;
 use tokio::time::{sleep, Duration};
 use reqwest::Error;
+use serde_xml_rs::from_str;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Post {
@@ -91,20 +90,30 @@ async fn main() {
                 full_url.push_str(antitag);
             }
             
-            let xml_data = fetch_xml_data(&full_url).await.unwrap();
-
-            let result: Posts = from_str(&xml_data).unwrap();
-            println!("{}", full_url);
-            for post in result.posts {
-                if !history.processed_urls.contains(&post.file_url) {
-                    if let Err(e) = webhook_send(&api_config.webhook_url, &post.file_url).await {
-                        eprintln!("Error sending to webhook: {}", e);
-                    } else {
-                        println!("Sent to webhook: {}", &post.file_url);
+            match fetch_xml_data(&full_url).await {
+                Ok(xml_data) => {
+                    let result: Result<Posts, _> = from_str(&xml_data);
+                    match result {
+                        Ok(posts) => {
+                            println!("{}", full_url);
+                            for post in posts.posts {
+                                if !history.processed_urls.contains(&post.file_url) {
+                                    if let Err(e) = webhook_send(&api_config.webhook_url, &post.file_url).await {
+                                        eprintln!("Error sending to webhook: {}", e);
+                                    } else {
+                                        println!("Sent to webhook: {}", &post.file_url);
+                                    }
+                                    history.processed_urls.insert(post.file_url.clone());
+                                }
+                            }
+                        }
+                        Err(err) => {
+                            eprintln!("Error parsing XML data: {}", err);
+                        }
                     }
-                    
-                    history.processed_urls.insert(post.file_url.clone());
-                    sleep(Duration::from_secs(2)).await;
+                }
+                Err(err) => {
+                    eprintln!("Error fetching XML data: {}", err);
                 }
             }
         }
