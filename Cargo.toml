@@ -11,3 +11,10 @@ reqwest = "0.11"
 tokio = { version = "1", features = ["full"] }
 serde_json = "1"
 serde-xml-rs = "0.6"
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+opt-level = "s"
+strip = "debuginfo"
+panic = "abort"
