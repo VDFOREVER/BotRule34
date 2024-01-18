@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
+use reqwest::Error;
 use reqwest::{self};
+use serde::{Deserialize, Serialize};
+use serde_xml_rs::from_str;
 use std::collections::HashSet;
 use std::fs;
 use tokio::time::{sleep, Duration};
-use reqwest::Error;
-use serde_xml_rs::from_str;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Post {
@@ -81,7 +81,6 @@ async fn main() {
 
     loop {
         for tag in &api_config.tags {
-            
             let mut full_url = api_config.url.clone();
             full_url.push_str(tag);
 
@@ -89,7 +88,7 @@ async fn main() {
                 full_url.push_str("+-");
                 full_url.push_str(antitag);
             }
-            
+
             match fetch_xml_data(&full_url).await {
                 Ok(xml_data) => {
                     let result: Result<Posts, _> = from_str(&xml_data);
@@ -98,7 +97,9 @@ async fn main() {
                             println!("{}", full_url);
                             for post in posts.posts {
                                 if !history.processed_urls.contains(&post.file_url) {
-                                    if let Err(e) = webhook_send(&api_config.webhook_url, &post.file_url).await {
+                                    if let Err(e) =
+                                        webhook_send(&api_config.webhook_url, &post.file_url).await
+                                    {
                                         eprintln!("Error sending to webhook: {}", e);
                                     } else {
                                         println!("Sent to webhook: {}", &post.file_url);
