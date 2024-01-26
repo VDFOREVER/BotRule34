@@ -1,5 +1,4 @@
-use reqwest::Error;
-use reqwest::{self};
+use reqwest::{Error, Response};
 use serde::{Deserialize, Serialize};
 use serde_xml_rs::from_str;
 use std::collections::HashSet;
@@ -31,7 +30,7 @@ struct History {
     processed_urls: HashSet<String>,
 }
 
-async fn fetch_xml_data(url: &str) -> Result<String, reqwest::Error> {
+async fn fetch_xml_data(url: &str) -> Result<String, Error> {
     let response = reqwest::get(url).await?;
     response.text().await
 }
@@ -59,35 +58,38 @@ fn save_history(history: &History) {
     fs::write("history.json", history_content).expect("Error writing history file");
 }
 
-async fn webhook_send(url: &str, content: &str) -> Result<(), Error> {
+async fn webhook_send(url: &str, content: &str) -> Result<Response, Error> {
     let client = reqwest::Client::new();
-
     let json_str = format!(r#"{{"content": "{}"}}"#, content);
 
-    let _ = client
+    client
         .post(url)
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .body(json_str)
         .send()
-        .await?;
+        .await
+}
 
-    Ok(())
+async fn all_antitag(api_config: &ApiConfig) -> String {
+    let mut tags: String = "".to_string();
+    for antitag in &api_config.antitags {
+        tags.push_str("+-");
+        tags.push_str(antitag);
+    }
+    tags
 }
 
 #[tokio::main]
 async fn main() {
     let api_config = load_config();
     let mut history = load_history();
+    let anti_tags = all_antitag(&api_config).await;
 
     loop {
         for tag in &api_config.tags {
             let mut full_url = api_config.url.clone();
-            full_url.push_str(tag);
-
-            for antitag in &api_config.antitags {
-                full_url.push_str("+-");
-                full_url.push_str(antitag);
-            }
+            full_url.push_str(&tag);
+            full_url.push_str(&anti_tags);
 
             match fetch_xml_data(&full_url).await {
                 Ok(xml_data) => {
