@@ -52,7 +52,7 @@ async fn main() {
                                     } else {
                                         println!("Sent to webhook: {}", &post.file_url);
                                     }
-
+                                    
                                     history.processed_urls.insert(post.file_url);
                                 }
                             }

@@ -1,7 +1,14 @@
 use reqwest::{Error, Response};
+use std::time::Duration;
 
 pub async fn fetch_xml_data(url: &str) -> Result<String, Error> {
-    reqwest::get(url).await?.text().await
+    reqwest::Client::new()
+        .get(url)
+        .timeout(Duration::from_secs(20))
+        .send()
+        .await?
+        .text()
+        .await
 }
 
 pub async fn webhook_send(url: &str, content: &str) -> Result<Response, Error> {
@@ -10,6 +17,7 @@ pub async fn webhook_send(url: &str, content: &str) -> Result<Response, Error> {
 
     client
         .post(url)
+        .timeout(Duration::from_secs(20))
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .body(json_str)
         .send()
