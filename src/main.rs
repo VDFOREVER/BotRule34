@@ -44,17 +44,19 @@ async fn main() {
                         Ok(posts) => {
                             println!("{}", full_url);
                             for post in posts.posts {
-                                if !history.processed_urls.contains(&post.file_url) {
-                                    if let Err(e) =
-                                        webhook_send(&api_config.webhook_url, &post.file_url).await
-                                    {
-                                        eprintln!("Error sending to webhook: {}", e);
-                                    } else {
-                                        println!("Sent to webhook: {}", &post.file_url);
-                                    }
-                                    
-                                    history.processed_urls.insert(post.file_url);
+                                if history.processed_urls.contains(&post.file_url) {
+                                    continue;
                                 }
+
+                                if let Err(e) =
+                                    webhook_send(&api_config.webhook_url, &post.file_url).await
+                                {
+                                    eprintln!("Error sending to webhook: {}", e);
+                                } else {
+                                    println!("Sent to webhook: {}", &post.file_url);
+                                }
+
+                                history.processed_urls.insert(post.file_url);
                             }
                         }
                         Err(err) => {
