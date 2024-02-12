@@ -49,7 +49,7 @@ async fn main() {
                                 }
 
                                 if let Err(e) =
-                                    webhook_send(&api_config.webhook_url, &post.file_url).await
+                                    webhook_send(&api_config.webhook_url, &post.file_url, tag).await
                                 {
                                     eprintln!("Error sending to webhook: {}", e);
                                 } else {

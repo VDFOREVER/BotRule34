@@ -1,4 +1,5 @@
-use reqwest::{Error, Response};
+use reqwest::{Client, Error, Response};
+use serde_json::json;
 use std::time::Duration;
 
 pub async fn fetch_xml_data(url: &str) -> Result<String, Error> {
@@ -11,15 +12,25 @@ pub async fn fetch_xml_data(url: &str) -> Result<String, Error> {
         .await
 }
 
-pub async fn webhook_send(url: &str, content: &str) -> Result<Response, Error> {
-    let client = reqwest::Client::new();
-    let json_str = format!(r#"{{"content": "{}"}}"#, content);
+pub async fn webhook_send(url: &str, content: &str, autor: &str) -> Result<Response, Error> {
+    let json_str = json!({
+        "embeds": [
+            {
+                "title": autor,
+                "author": {
+                    "name": "rule34"
+                },
+                "image": {
+                    "url": content
+                }
+            }
+        ]
+    });
 
-    client
+    Client::new()
         .post(url)
         .timeout(Duration::from_secs(20))
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .body(json_str)
+        .json(&json_str)
         .send()
         .await
 }
