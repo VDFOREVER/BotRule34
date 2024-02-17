@@ -34,7 +34,7 @@ async fn main() {
     loop {
         for tag in &api_config.tags {
             let mut full_url = api_config.url.clone();
-            full_url.push_str(&tag);
+            full_url.push_str(tag);
             full_url.push_str(&anti_tags);
 
             match fetch_xml_data(&full_url).await {
