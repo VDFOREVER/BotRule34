@@ -57,6 +57,8 @@ async fn main() {
                                 }
 
                                 history.processed_urls.insert(post.file_url);
+
+                                sleep(Duration::from_secs(2)).await;
                             }
                         }
                         Err(err) => {
